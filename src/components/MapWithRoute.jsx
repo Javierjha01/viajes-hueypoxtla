@@ -5,13 +5,31 @@ import { MAPBOX_ACCESS_TOKEN } from '../config/mapbox'
 import { createPinMarkerElement } from '../lib/pinMarker'
 import './MapWithRoute.css'
 
-export default function MapWithRoute({ origin, destination, routeCoordinates }) {
+/**
+ * Mapa con ruta opcional, ubicación del usuario (punto azul + rumbo) y/o marcador del conductor.
+ * - origin, destination: [lng, lat] para centrado y marcadores
+ * - routeCoordinates: geometría de la ruta (línea azul)
+ * - showUserLocation: true = GeolocateControl (punto azul nativo + giroscopio/rumbo)
+ * - skipOriginMarker: si true y showUserLocation, no dibuja el pin de origen (el azul es la ubicación del usuario)
+ * - driverLocation: [lng, lat] opcional = marcador del conductor (verde) para vista del cliente
+ */
+export default function MapWithRoute({
+  origin,
+  destination,
+  routeCoordinates,
+  showUserLocation = false,
+  skipOriginMarker = false,
+  driverLocation = null,
+}) {
   const containerRef = useRef(null)
   const mapRef = useRef(null)
   const markersRef = useRef([])
+  const driverMarkerRef = useRef(null)
 
   useEffect(() => {
-    if (!containerRef.current || !MAPBOX_ACCESS_TOKEN || origin?.length !== 2 || destination?.length !== 2) return
+    if (!containerRef.current || !MAPBOX_ACCESS_TOKEN) return
+    const hasEndpoints = origin?.length === 2 && destination?.length === 2
+    if (!hasEndpoints) return
 
     mapboxgl.accessToken = MAPBOX_ACCESS_TOKEN
     const map = new mapboxgl.Map({
@@ -23,26 +41,63 @@ export default function MapWithRoute({ origin, destination, routeCoordinates }) 
 
     map.addControl(new mapboxgl.NavigationControl(), 'top-right')
 
+    if (showUserLocation) {
+      const geolocate = new mapboxgl.GeolocateControl({
+        positionOptions: { enableHighAccuracy: true },
+        trackUserLocation: true,
+        showUserHeading: true,
+        showUserLocation: true,
+      })
+      map.addControl(geolocate, 'top-right')
+      map.on('load', () => geolocate.trigger())
+    }
+
     const bounds = new mapboxgl.LngLatBounds()
     bounds.extend(origin)
     bounds.extend(destination)
+    if (driverLocation?.length === 2) bounds.extend(driverLocation)
     map.fitBounds(bounds, { padding: 60, maxZoom: 14 })
 
-    const markerOrigen = new mapboxgl.Marker({ element: createPinMarkerElement('#3388ff'), anchor: 'bottom' })
-      .setLngLat(origin)
-      .addTo(map)
-    const markerDestino = new mapboxgl.Marker({ element: createPinMarkerElement('#f97316'), anchor: 'bottom' })
+    const markers = []
+    if (!skipOriginMarker) {
+      const mOrigin = new mapboxgl.Marker({ element: createPinMarkerElement('#3388ff'), anchor: 'bottom' })
+        .setLngLat(origin)
+        .addTo(map)
+      markers.push(mOrigin)
+    }
+    const mDest = new mapboxgl.Marker({ element: createPinMarkerElement('#f97316'), anchor: 'bottom' })
       .setLngLat(destination)
       .addTo(map)
-    markersRef.current = [markerOrigen, markerDestino]
+    markers.push(mDest)
+    markersRef.current = markers
     mapRef.current = map
 
     return () => {
       markersRef.current.forEach((m) => m.remove())
+      if (driverMarkerRef.current) {
+        driverMarkerRef.current.remove()
+        driverMarkerRef.current = null
+      }
       map.remove()
       mapRef.current = null
     }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps -- init once with initial origin/dest
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps -- init once
+
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map) return
+    if (driverMarkerRef.current) {
+      driverMarkerRef.current.remove()
+      driverMarkerRef.current = null
+    }
+    if (driverLocation?.length === 2) {
+      const el = createPinMarkerElement('#22c55e')
+      const marker = new mapboxgl.Marker({ element: el, anchor: 'bottom' })
+        .setLngLat(driverLocation)
+        .addTo(map)
+      driverMarkerRef.current = marker
+    }
+  }, [driverLocation])
 
   useEffect(() => {
     const map = mapRef.current
@@ -78,11 +133,13 @@ export default function MapWithRoute({ origin, destination, routeCoordinates }) 
     }
   }, [routeCoordinates])
 
+  if (!origin?.length || !destination?.length || origin.length !== 2 || destination.length !== 2) return null
+
   return (
     <div
       ref={containerRef}
       className="map-with-route"
-      aria-label="Mapa con ruta de origen a destino"
+      aria-label="Mapa con ruta"
     />
   )
 }

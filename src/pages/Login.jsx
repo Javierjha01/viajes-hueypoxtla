@@ -10,7 +10,7 @@ export default function Login() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
-  const { login, loginWithGoogle } = useAuth()
+  const { login, loginWithGoogle, syncAuthState } = useAuth()
   const navigate = useNavigate()
 
   async function handleGoogle() {
@@ -18,6 +18,7 @@ export default function Login() {
     setSubmitting(true)
     try {
       await loginWithGoogle()
+      await syncAuthState()
       navigate('/', { replace: true })
     } catch (err) {
       const msg =
@@ -38,6 +39,7 @@ export default function Login() {
     setSubmitting(true)
     try {
       await login(email.trim(), password)
+      await syncAuthState()
       navigate('/', { replace: true })
     } catch (err) {
       const msg =

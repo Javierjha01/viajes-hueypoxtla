@@ -6,12 +6,18 @@ import {
   subscribeDriverActiveTrip,
   updateTripStatus,
   updateTripRating,
+  updateDriverLocation,
   TRIP_STATUS,
 } from '../../lib/driverTrips'
 import { requestAndSaveDriverFcmToken } from '../../lib/driverNotifications'
+import { MAPBOX_ACCESS_TOKEN } from '../../config/mapbox'
+import { getRouteInfo } from '../../lib/mapboxDirections'
 import DriverTripDetailSheet from './DriverTripDetailSheet'
+import MapWithRoute from '../MapWithRoute'
 import RatingModal from '../RatingModal'
 import './DriverInicioView.css'
+
+const DRIVER_LOCATION_INTERVAL_MS = 5000
 
 const STATUS_LABELS = {
   [TRIP_STATUS.accepted]: 'Ir a recoger',
@@ -35,6 +41,9 @@ export default function DriverInicioView({ driverId }) {
   const [tripToRate, setTripToRate] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [driverPosition, setDriverPosition] = useState(null)
+  const [routeToPickup, setRouteToPickup] = useState(null)
+  const [tripRouteCoords, setTripRouteCoords] = useState(null)
 
   useEffect(() => {
     if (!driverId) return
@@ -56,6 +65,62 @@ export default function DriverInicioView({ driverId }) {
     const unsub = subscribeDriverActiveTrip(driverId, setActiveTrip)
     return () => unsub()
   }, [driverId])
+
+  useEffect(() => {
+    if (!activeTrip || !driverId) return
+    const pickup = activeTrip.origin ? [activeTrip.origin.lng, activeTrip.origin.lat] : null
+    const dest = activeTrip.destination ? [activeTrip.destination.lng, activeTrip.destination.lat] : null
+    if (activeTrip.status === TRIP_STATUS.picked_up || activeTrip.status === TRIP_STATUS.in_progress) {
+      if (pickup?.length === 2 && dest?.length === 2 && MAPBOX_ACCESS_TOKEN) {
+        getRouteInfo(pickup, dest, MAPBOX_ACCESS_TOKEN).then((info) =>
+          setTripRouteCoords(info?.coordinates ?? null)
+        )
+      }
+      return
+    }
+    setTripRouteCoords(null)
+  }, [activeTrip?.id, activeTrip?.status, activeTrip?.origin, activeTrip?.destination, driverId])
+
+  useEffect(() => {
+    if (!activeTrip || !driverId) return
+    const status = activeTrip.status
+    if (status !== TRIP_STATUS.accepted && status !== TRIP_STATUS.driver_en_route && status !== TRIP_STATUS.picked_up && status !== TRIP_STATUS.in_progress) return
+    if (!navigator.geolocation) return
+
+    let watchId = null
+    let intervalId = null
+    const pickup = activeTrip.origin ? [activeTrip.origin.lng, activeTrip.origin.lat] : null
+
+    const updateLocation = (lat, lng) => {
+      setDriverPosition([lng, lat])
+      updateDriverLocation(activeTrip.id, driverId, lat, lng).catch(() => {})
+      if ((status === TRIP_STATUS.accepted || status === TRIP_STATUS.driver_en_route) && pickup?.length === 2 && MAPBOX_ACCESS_TOKEN) {
+        getRouteInfo([lng, lat], pickup, MAPBOX_ACCESS_TOKEN).then((info) =>
+          setRouteToPickup(info?.coordinates ?? null)
+        )
+      }
+    }
+
+    watchId = navigator.geolocation.watchPosition(
+      (pos) => updateLocation(pos.coords.latitude, pos.coords.longitude),
+      () => {},
+      { enableHighAccuracy: true, maximumAge: 10000 }
+    )
+    intervalId = setInterval(() => {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => updateLocation(pos.coords.latitude, pos.coords.longitude),
+        () => {},
+        { enableHighAccuracy: true }
+      )
+    }, DRIVER_LOCATION_INTERVAL_MS)
+
+    return () => {
+      if (watchId != null) navigator.geolocation.clearWatch(watchId)
+      if (intervalId != null) clearInterval(intervalId)
+      setDriverPosition(null)
+      setRouteToPickup(null)
+    }
+  }, [activeTrip?.id, activeTrip?.status, driverId])
 
   async function handleToggleOnline() {
     setError('')
@@ -100,6 +165,8 @@ export default function DriverInicioView({ driverId }) {
   if (activeTrip) {
     const origin = activeTrip.origin
     const dest = activeTrip.destination
+    const pickup = origin ? [origin.lng, origin.lat] : null
+    const destCoords = dest ? [dest.lng, dest.lat] : null
     const originName = activeTrip.originName || (origin ? `${origin.lat?.toFixed(4)}, ${origin.lng?.toFixed(4)}` : 'Origen')
     const destName = activeTrip.destinationName || (dest ? `${dest.lat?.toFixed(4)}, ${dest.lng?.toFixed(4)}` : 'Destino')
     const isCompleted = activeTrip.status === TRIP_STATUS.completed
@@ -111,6 +178,11 @@ export default function DriverInicioView({ driverId }) {
           ? 'Iniciar viaje'
           : 'Finalizar viaje'
 
+    const isToPickup = activeTrip.status === TRIP_STATUS.accepted || activeTrip.status === TRIP_STATUS.driver_en_route
+    const mapOrigin = isToPickup && driverPosition?.length === 2 ? driverPosition : pickup
+    const mapDest = isToPickup ? pickup : destCoords
+    const mapRoute = isToPickup ? routeToPickup : tripRouteCoords
+
     return (
       <section className="driver-inicio" aria-label="Inicio conductor">
         <div className="driver-inicio-active-card">
@@ -119,6 +191,17 @@ export default function DriverInicioView({ driverId }) {
             <p className="driver-inicio-route-origin">{originName}</p>
             <p className="driver-inicio-route-dest">{destName}</p>
           </div>
+          {pickup && mapDest && (
+            <div className="driver-inicio-map-wrap">
+              <MapWithRoute
+                origin={mapOrigin}
+                destination={mapDest}
+                routeCoordinates={mapRoute}
+                showUserLocation
+                skipOriginMarker={isToPickup && driverPosition?.length === 2}
+              />
+            </div>
+          )}
           <p className="driver-inicio-status-label">{STATUS_LABELS[activeTrip.status]}</p>
           {!isCompleted && (
             <button

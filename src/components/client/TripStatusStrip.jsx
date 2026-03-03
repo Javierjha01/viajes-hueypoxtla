@@ -1,7 +1,10 @@
 import { useState, useEffect, useRef } from 'react'
 import lottie from 'lottie-web'
 import { subscribeClientTrip, cancelTrip, updateTripRating, TRIP_STATUS } from '../../lib/driverTrips'
+import { MAPBOX_ACCESS_TOKEN } from '../../config/mapbox'
+import { getRouteInfo } from '../../lib/mapboxDirections'
 import RatingModal from '../RatingModal'
+import MapWithRoute from '../MapWithRoute'
 import './TripStatusStrip.css'
 
 const STEPS = [
@@ -22,8 +25,14 @@ export default function TripStatusStrip({ tripId, clientId, onDismiss }) {
   const [error, setError] = useState('')
   const [now, setNow] = useState(() => Date.now())
   const [ratingDone, setRatingDone] = useState(false)
+  const [clientMapRoute, setClientMapRoute] = useState(null)
   const progressRef = useRef(null)
   const animRef = useRef(null)
+
+  const pickup = trip?.origin ? [trip.origin.lng, trip.origin.lat] : null
+  const dest = trip?.destination ? [trip.destination.lng, trip.destination.lat] : null
+  const driverLoc = trip?.driverLocation ? [trip.driverLocation.lng, trip.driverLocation.lat] : null
+  const showClientMap = pickup?.length === 2 && dest?.length === 2 && trip && (trip.status === TRIP_STATUS.accepted || trip.status === TRIP_STATUS.driver_en_route || trip.status === TRIP_STATUS.picked_up || trip.status === TRIP_STATUS.in_progress)
 
   useEffect(() => {
     const t = setInterval(() => setNow(Date.now()), 1000)
@@ -64,6 +73,22 @@ export default function TripStatusStrip({ tripId, clientId, onDismiss }) {
     }
   }, [trip?.id, trip?.status])
 
+  useEffect(() => {
+    if (!showClientMap || !MAPBOX_ACCESS_TOKEN || !trip) return
+    const isToPickup = trip.status === TRIP_STATUS.driver_en_route || trip.status === TRIP_STATUS.accepted
+    if (isToPickup && driverLoc?.length === 2) {
+      getRouteInfo(driverLoc, pickup, MAPBOX_ACCESS_TOKEN).then((info) =>
+        setClientMapRoute(info?.coordinates ?? null)
+      )
+    } else if (trip.status === TRIP_STATUS.picked_up || trip.status === TRIP_STATUS.in_progress) {
+      getRouteInfo(pickup, dest, MAPBOX_ACCESS_TOKEN).then((info) =>
+        setClientMapRoute(info?.coordinates ?? null)
+      )
+    } else {
+      setClientMapRoute(null)
+    }
+  }, [showClientMap, trip?.status, driverLoc?.[0], driverLoc?.[1], pickup?.[0], pickup?.[1], dest?.[0], dest?.[1]])
+
   const handleCancel = async () => {
     setError('')
     setCancelling(true)
@@ -102,11 +127,25 @@ export default function TripStatusStrip({ tripId, clientId, onDismiss }) {
   const elapsed = now - createdAt
   const cancelInSec = Math.max(0, Math.ceil((AUTO_CANCEL_MS - elapsed) / 1000))
 
+  const isClientMapToPickup = trip.status === TRIP_STATUS.driver_en_route || trip.status === TRIP_STATUS.accepted
+  const clientMapOrigin = isClientMapToPickup && driverLoc?.length === 2 ? driverLoc : pickup
+  const clientMapDest = isClientMapToPickup ? pickup : dest
+
   return (
     <div className="trip-status-strip">
       <p className="trip-status-strip-title" aria-live="polite">
         {currentLabel}
       </p>
+      {showClientMap && clientMapOrigin && clientMapDest && (
+        <div className="trip-status-strip-map-wrap">
+          <MapWithRoute
+            origin={clientMapOrigin}
+            destination={clientMapDest}
+            routeCoordinates={clientMapRoute}
+            driverLocation={!isClientMapToPickup ? driverLoc : null}
+          />
+        </div>
+      )}
       <div className="trip-status-segments" role="progressbar" aria-valuenow={stepIndex + 1} aria-valuemin={1} aria-valuemax={STEPS.length} aria-label="Progreso del viaje">
         {STEPS.map((step, i) => (
           <div

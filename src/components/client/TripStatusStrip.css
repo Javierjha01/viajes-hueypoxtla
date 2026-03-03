@@ -18,6 +18,15 @@
   text-align: center;
 }
 
+.trip-status-strip-map-wrap {
+  height: 200px;
+  min-height: 180px;
+  margin: 0 0 0.75rem;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #e5e7eb;
+}
+
 /* Barra de segmentos: un segmento por estado */
 .trip-status-segments {
   display: flex;

@@ -187,6 +187,15 @@
   margin-bottom: 0.75rem;
 }
 
+.driver-inicio-map-wrap {
+  height: 220px;
+  min-height: 180px;
+  margin: 0 -0.25rem 1rem;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #e5e7eb;
+}
+
 .driver-inicio-route-origin,
 .driver-inicio-route-dest {
   margin: 0;

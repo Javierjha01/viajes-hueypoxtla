@@ -92,6 +92,24 @@ export function AuthProvider({ children }) {
     setProfile(data)
   }
 
+  /** Sincroniza el estado del contexto con auth.currentUser (útil tras login en PWA para no depender del timing de onAuthStateChanged). */
+  const syncAuthState = async () => {
+    const current = auth.currentUser
+    setUser(current)
+    if (!current) {
+      setProfile(null)
+      setLoading(false)
+      return
+    }
+    try {
+      const snap = await getDoc(doc(db, 'users', current.uid))
+      setProfile(snap.exists() ? snap.data() : null)
+    } catch {
+      setProfile(null)
+    }
+    setLoading(false)
+  }
+
   const login = (email, password) =>
     signInWithEmailAndPassword(auth, email, password)
 
@@ -127,6 +145,7 @@ export function AuthProvider({ children }) {
     register,
     signOut,
     refreshProfile,
+    syncAuthState,
     ROLES,
     isAdmin: profile?.role === ROLES.admin,
     isClient: profile?.role === ROLES.client,

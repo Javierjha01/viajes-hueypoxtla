@@ -215,6 +215,23 @@ export async function updateTripStatus(tripId, status, driverId) {
 }
 
 /**
+ * Conductor actualiza su ubicación en el viaje (para que el cliente vea por dónde viene).
+ * Solo el conductor del viaje puede escribir.
+ */
+export async function updateDriverLocation(tripId, driverId, lat, lng) {
+  const ref = doc(db, TRIPS, tripId)
+  const snap = await getDoc(ref)
+  if (!snap.exists()) return
+  const data = snap.data()
+  if (data.driverId !== driverId) return
+  await updateDoc(ref, {
+    driverLocation: { lat: Number(lat), lng: Number(lng) },
+    driverLocationUpdatedAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  })
+}
+
+/**
  * Cliente o conductor califica al otro al terminar el viaje.
  * @param {string} tripId
  * @param {'client'|'driver'} role - Quién califica: 'client' califica al conductor, 'driver' califica al pasajero
