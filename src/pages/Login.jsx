@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import AuthPasswordInput from '../components/AuthPasswordInput'
 import icGoogle from '../assets/ic_google.png'
 import './Auth.css'
 
@@ -75,12 +76,9 @@ export default function Login() {
 
           <label className="auth-label">
             Contraseña
-            <input
-              type="password"
-              className="auth-input"
+            <AuthPasswordInput
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
               autoComplete="current-password"
               required
             />

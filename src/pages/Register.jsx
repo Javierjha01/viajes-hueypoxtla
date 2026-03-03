@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import { createUserProfile } from '../lib/firestoreUsers'
 import { validatePhone } from '../lib/validatePhone'
 import TrailLoading from '../components/TrailLoading'
+import AuthPasswordInput from '../components/AuthPasswordInput'
 import './Auth.css'
 
 export default function Register() {
@@ -164,9 +165,7 @@ export default function Register() {
 
           <label className="auth-label">
             Contraseña
-            <input
-              type="password"
-              className="auth-input"
+            <AuthPasswordInput
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Mínimo 6 caracteres"
@@ -178,9 +177,7 @@ export default function Register() {
 
           <label className="auth-label">
             Confirmar contraseña
-            <input
-              type="password"
-              className="auth-input"
+            <AuthPasswordInput
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="Repite la contraseña"

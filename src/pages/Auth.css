@@ -110,6 +110,46 @@
   box-shadow: 0 0 0 2px rgba(55, 65, 81, 0.15);
 }
 
+.auth-password-wrap {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+}
+
+.auth-password-wrap .auth-password-input {
+  flex: 1;
+  padding-right: 2.75rem;
+}
+
+.auth-password-toggle {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  color: var(--auth-placeholder, #9ca3af);
+  cursor: pointer;
+  border-radius: 4px;
+  padding: 0;
+}
+
+.auth-password-toggle:hover {
+  color: var(--auth-label, #374151);
+  background: var(--auth-bg, #f3f4f6);
+}
+
+.auth-password-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  pointer-events: none;
+}
+
 .auth-select {
   cursor: pointer;
   appearance: auto;

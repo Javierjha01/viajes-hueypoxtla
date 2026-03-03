@@ -24,6 +24,12 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
   const redirectHandled = useRef(false)
 
+  // En PWA (añadido al inicio del móvil) el almacenamiento puede ser distinto: forzar persistencia local
+  // para que el login con correo (y Google) se guarde y no se pierda al cerrar la app.
+  useEffect(() => {
+    setPersistence(auth, browserLocalPersistence).catch(() => {})
+  }, [])
+
   useEffect(() => {
     let unsub
     // Solo procesar redirect una vez (evita que Strict Mode consuma el resultado dos veces).
