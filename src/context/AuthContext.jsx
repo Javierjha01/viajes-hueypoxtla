@@ -21,30 +21,31 @@ export function AuthProvider({ children }) {
   const [profile, setProfile] = useState(null) // { role, email, ... }
   const [loading, setLoading] = useState(true)
 
-  // Completar login cuando el usuario vuelve de Google (redirect, p. ej. en iPhone)
+  // En móvil (redirect) hay que procesar getRedirectResult ANTES de confiar en onAuthStateChanged,
+  // o la app ve user=null y muestra login de nuevo.
   useEffect(() => {
+    let unsub
     getRedirectResult(auth)
       .then(() => {})
       .catch(() => {})
-  }, [])
-
-  useEffect(() => {
-    const unsub = onAuthStateChanged(auth, async (firebaseUser) => {
-      setUser(firebaseUser)
-      if (!firebaseUser) {
-        setProfile(null)
-        setLoading(false)
-        return
-      }
-      try {
-        const profileSnap = await getDoc(doc(db, 'users', firebaseUser.uid))
-        setProfile(profileSnap.exists() ? profileSnap.data() : null)
-      } catch (e) {
-        setProfile(null)
-      }
-      setLoading(false)
-    })
-    return () => unsub()
+      .finally(() => {
+        unsub = onAuthStateChanged(auth, async (firebaseUser) => {
+          setUser(firebaseUser)
+          if (!firebaseUser) {
+            setProfile(null)
+            setLoading(false)
+            return
+          }
+          try {
+            const profileSnap = await getDoc(doc(db, 'users', firebaseUser.uid))
+            setProfile(profileSnap.exists() ? profileSnap.data() : null)
+          } catch (e) {
+            setProfile(null)
+          }
+          setLoading(false)
+        })
+      })
+    return () => unsub?.()
   }, [])
 
   const fetchProfile = async (uid) => {
