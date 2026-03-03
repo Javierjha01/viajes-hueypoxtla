@@ -1,0 +1,145 @@
+.driver-trip-detail-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.driver-trip-detail-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.driver-trip-detail-content {
+  position: relative;
+  width: 100%;
+  max-height: 90vh;
+  background: #fff;
+  border-radius: 16px 16px 0 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.driver-trip-detail-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #e5e7eb;
+  flex-shrink: 0;
+}
+
+.driver-trip-detail-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.driver-trip-detail-close {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  font-size: 1.5rem;
+  color: #6b7280;
+  cursor: pointer;
+  border-radius: 50%;
+}
+
+.driver-trip-detail-close:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.driver-trip-detail-route {
+  padding: 0.75rem 1.25rem;
+  flex-shrink: 0;
+}
+
+.driver-trip-detail-origin,
+.driver-trip-detail-dest {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #1f2937;
+}
+
+.driver-trip-detail-origin {
+  color: #6b7280;
+}
+
+.driver-trip-detail-map-wrap {
+  height: 220px;
+  min-height: 200px;
+  flex-shrink: 0;
+}
+
+.driver-trip-detail-map-wrap .map-with-route {
+  height: 100%;
+  border-radius: 0;
+}
+
+.driver-trip-detail-error-wrap {
+  margin: 0 1.25rem 0.5rem;
+  padding: 0.75rem 1rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+}
+
+.driver-trip-detail-error {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #b91c1c;
+}
+
+.driver-trip-detail-actions {
+  display: flex;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  flex-shrink: 0;
+}
+
+.driver-trip-detail-btn {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s, opacity 0.2s;
+}
+
+.driver-trip-detail-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.driver-trip-detail-btn-reject {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.driver-trip-detail-btn-reject:hover:not(:disabled) {
+  background: #e5e7eb;
+}
+
+.driver-trip-detail-btn-accept {
+  background: #3388ff;
+  color: #fff;
+}
+
+.driver-trip-detail-btn-accept:hover:not(:disabled) {
+  background: #2563eb;
+}

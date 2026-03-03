@@ -1,9 +1,11 @@
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import ClientHome from '../components/client/ClientHome'
+import DriverHome from '../components/driver/DriverHome'
 import './Home.css'
 
 export default function Home() {
-  const { profile, role, displayName, signOut } = useAuth()
+  const { user, profile, role, displayName, signOut } = useAuth()
   const navigate = useNavigate()
 
   const roleLabel = {
@@ -15,6 +17,28 @@ export default function Home() {
   function handleSignOut() {
     signOut()
     navigate('/login', { replace: true })
+  }
+
+  if (role === 'client') {
+    return (
+      <ClientHome
+        displayName={displayName}
+        profile={profile}
+        onSignOut={handleSignOut}
+        user={user}
+      />
+    )
+  }
+
+  if (role === 'driver') {
+    return (
+      <DriverHome
+        displayName={displayName}
+        profile={profile}
+        onSignOut={handleSignOut}
+        driverId={user?.uid}
+      />
+    )
   }
 
   return (

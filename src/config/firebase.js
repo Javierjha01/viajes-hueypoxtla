@@ -3,6 +3,7 @@ import { getAnalytics } from 'firebase/analytics'
 import { getAuth } from 'firebase/auth'
 import { getFirestore } from 'firebase/firestore'
 import { getStorage } from 'firebase/storage'
+import { getMessaging, isSupported } from 'firebase/messaging'
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -20,4 +21,10 @@ const auth = getAuth(app)
 const db = getFirestore(app)
 const storage = getStorage(app)
 
-export { app, analytics, auth, db, storage }
+async function getMessagingIfSupported() {
+  if (typeof window === 'undefined') return null
+  const supported = await isSupported()
+  return supported ? getMessaging(app) : null
+}
+
+export { app, analytics, auth, db, storage, getMessagingIfSupported }

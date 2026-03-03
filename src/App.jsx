@@ -5,6 +5,7 @@ import Register from './pages/Register'
 import RegistroConductor from './pages/RegistroConductor'
 import Home from './pages/Home'
 import CompletarPerfil from './pages/CompletarPerfil'
+import ElegirOrigenDestino from './pages/ElegirOrigenDestino'
 import './App.css'
 
 function PrivateRoute({ children }) {
@@ -82,6 +83,14 @@ function AppRoutes() {
           <CompleteProfileRoute>
             <CompletarPerfil />
           </CompleteProfileRoute>
+        }
+      />
+      <Route
+        path="/elegir-destino"
+        element={
+          <PrivateRoute>
+            <ElegirOrigenDestino />
+          </PrivateRoute>
         }
       />
       <Route

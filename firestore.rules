@@ -8,6 +8,26 @@ service cloud.firestore {
     match /users/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
-    // El resto de colecciones se añadirán con el flujo de viajes
+
+    // Disponibilidad del conductor: solo su propio documento
+    match /driverStatus/{driverId} {
+      allow read, write: if request.auth != null && request.auth.uid == driverId;
+    }
+
+    // Viajes: cliente crea; conductor lee pendientes (requested) y los asignados; ambos actualizan según rol
+    match /trips/{tripId} {
+      allow read: if request.auth != null
+        && (resource.data.clientId == request.auth.uid
+            || resource.data.driverId == request.auth.uid
+            || resource.data.status == 'requested');
+      allow create: if request.auth != null
+        && request.resource.data.clientId == request.auth.uid
+        && request.resource.data.status == 'requested';
+      allow update: if request.auth != null
+        && (resource.data.clientId == request.auth.uid
+            || resource.data.driverId == request.auth.uid
+            || resource.data.status == 'requested');
+      allow delete: if false;
+    }
   }
 }

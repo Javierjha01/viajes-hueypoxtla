@@ -1,0 +1,118 @@
+.map-picker {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+}
+
+.map-picker-close {
+  position: absolute;
+  top: max(0.5rem, env(safe-area-inset-top));
+  left: 1rem;
+  z-index: 10;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  color: #374151;
+  cursor: pointer;
+}
+
+.map-picker-close:hover {
+  background: #f9fafb;
+}
+
+.map-picker-map {
+  flex: 1;
+  min-height: 0;
+}
+
+.map-picker-map .map-pin-marker {
+  width: 44px;
+  height: 44px;
+  cursor: pointer;
+}
+
+.map-picker-map .map-pin-marker svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.25));
+}
+
+/* Ocultar el botón del GeolocateControl (top-left); solo mostramos el punto azul con orientación */
+.map-picker-map .mapboxgl-ctrl-top-left .mapboxgl-ctrl-group {
+  display: none;
+}
+
+.map-picker-sheet {
+  padding: 1rem 1.25rem;
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  background: #fff;
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+}
+
+.map-picker-title {
+  margin: 0 0 0.75rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.map-picker-selected {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  background: #f9fafb;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  color: #374151;
+  min-height: 48px;
+}
+
+.map-picker-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.map-picker-dot-origen {
+  background: #22c55e;
+}
+
+.map-picker-dot-destino {
+  background: #f97316;
+}
+
+.map-picker-confirmar {
+  width: 100%;
+  padding: 1rem;
+  border: none;
+  border-radius: 12px;
+  background: #f97316;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.map-picker-confirmar:hover:not(:disabled) {
+  background: #ea580c;
+}
+
+.map-picker-confirmar:disabled {
+  background: #d1d5db;
+  cursor: not-allowed;
+}

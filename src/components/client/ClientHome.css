@@ -1,0 +1,62 @@
+/* Usar altura dinámica del viewport para que la nav no se corte en móvil (barra del navegador) */
+.client-home {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+  max-height: 100dvh;
+  height: 100dvh;
+  background: var(--page-bg, #f5f5f5);
+}
+
+.client-home-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  padding-top: max(0.75rem, env(safe-area-inset-top));
+  background: var(--header-bg, #1a1a2e);
+  color: var(--header-text, #fff);
+  flex-shrink: 0;
+}
+
+.client-home-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.client-home-user {
+  flex: 1;
+  text-align: center;
+  font-size: 0.95rem;
+}
+
+.client-home-content {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 72px; /* espacio para la nav fija al hacer scroll */
+}
+
+.client-home-content .client-map-section {
+  flex-shrink: 0;
+}
+
+.client-map-section {
+  height: 280px;
+  min-height: 260px;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.client-map-section .client-map {
+  width: 100%;
+  height: 100%;
+  min-height: 260px;
+}
