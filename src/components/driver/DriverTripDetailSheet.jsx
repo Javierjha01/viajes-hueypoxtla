@@ -49,6 +49,14 @@ export default function DriverTripDetailSheet({ trip, driverId, onAccept, onReje
             ×
           </button>
         </header>
+        <div className="driver-trip-detail-actions">
+          <button type="button" className="driver-trip-detail-btn driver-trip-detail-btn-reject" onClick={onReject} disabled={loading}>
+            Rechazar
+          </button>
+          <button type="button" className="driver-trip-detail-btn driver-trip-detail-btn-accept" onClick={handleAccept} disabled={loading || !driverId}>
+            {loading ? 'Aceptando…' : 'Aceptar viaje'}
+          </button>
+        </div>
         <div className="driver-trip-detail-scroll">
           <div className="driver-trip-detail-route">
             <p className="driver-trip-detail-origin">{trip.originName || 'Origen'}</p>
@@ -64,14 +72,6 @@ export default function DriverTripDetailSheet({ trip, driverId, onAccept, onReje
               <p className="driver-trip-detail-error">{error}</p>
             </div>
           )}
-        </div>
-        <div className="driver-trip-detail-actions">
-          <button type="button" className="driver-trip-detail-btn driver-trip-detail-btn-reject" onClick={onReject} disabled={loading}>
-            Rechazar
-          </button>
-          <button type="button" className="driver-trip-detail-btn driver-trip-detail-btn-accept" onClick={handleAccept} disabled={loading || !driverId}>
-            {loading ? 'Aceptando…' : 'Aceptar viaje'}
-          </button>
         </div>
       </div>
     </div>
