@@ -28,10 +28,10 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
-        // Rutas como /login, /registro deben servir index.html (SPA)
+        // Límite por defecto 2 MiB; el chunk principal supera eso
+        maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
         navigateFallback: '/index.html',
         navigateFallbackAllowlist: [/^\/.*/],
-        // Evita fallo de build con terser en algunos entornos
         mode: 'development',
       },
       // Desactivado en desarrollo para que el service worker no interfiera con el login (redirect de Google)

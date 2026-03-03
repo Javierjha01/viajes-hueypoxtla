@@ -17,6 +17,9 @@ dist-ssr
 .env.local
 .env.*.local
 
+# Service worker generado con claves desde .env (no commitear)
+public/firebase-messaging-sw.js
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

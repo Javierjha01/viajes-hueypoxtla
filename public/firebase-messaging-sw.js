@@ -1,10 +1,10 @@
 // Service worker para notificaciones push (FCM).
-// Sustituye firebaseConfig con los valores de tu proyecto (Firebase Console > Configuración del proyecto).
+// Generado por scripts/generate-firebase-sw.js desde .env — no editar a mano.
 importScripts('https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js')
 importScripts('https://www.gstatic.com/firebasejs/10.13.2/firebase-messaging-compat.js')
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyBWNqCJSmyvXoX0rfqlYeCjtcKomu_Yis4',
+  apiKey: 'AIzaSyDCC0TyOVwjLHqpNOVsckYIdqLW57JTpAI',
   authDomain: 'poxtgo-8444b.firebaseapp.com',
   projectId: 'poxtgo-8444b',
   storageBucket: 'poxtgo-8444b.firebasestorage.app',

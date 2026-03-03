@@ -14,13 +14,9 @@ Para que al conductor le llegue una notificación cuando un cliente solicita un 
 
 ## 2. Service worker (config de Firebase)
 
-El archivo `public/firebase-messaging-sw.js` debe usar la misma config que tu app.
+El archivo `public/firebase-messaging-sw.js` **se genera automáticamente** desde tu `.env` al ejecutar `npm run dev` o `npm run build`. No lo edites a mano ni lo subas al repositorio (está en `.gitignore`).
 
-1. Abre `public/firebase-messaging-sw.js`.
-2. Sustituye el objeto `firebaseConfig` con los valores de tu proyecto (los mismos que en `.env`):
-   - `apiKey`, `authDomain`, `projectId`, `storageBucket`, `messagingSenderId`, `appId`.
-
-Así las notificaciones en segundo plano (pestaña en background o app cerrada) funcionarán.
+Asegúrate de tener en `.env` todas las variables `VITE_FIREBASE_*` (apiKey, authDomain, projectId, etc.). Con eso las notificaciones en segundo plano (pestaña en background o app cerrada) funcionarán. Si cambias algo en `.env`, ejecuta `npm run generate-sw` o vuelve a levantar `npm run dev`.
 
 ## 3. Permisos en el navegador
 
