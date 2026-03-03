@@ -18,42 +18,62 @@ const AuthContext = createContext(null)
 
 const ROLES = { admin: 'admin', client: 'client', driver: 'driver' }
 
+const isStandalone = () =>
+  typeof window !== 'undefined' &&
+  (window.matchMedia('(display-mode: standalone)').matches || !!window.navigator.standalone)
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
   const redirectHandled = useRef(false)
-
-  // En PWA (añadido al inicio del móvil) el almacenamiento puede ser distinto: forzar persistencia local
-  // para que el login con correo (y Google) se guarde y no se pierda al cerrar la app.
-  useEffect(() => {
-    setPersistence(auth, browserLocalPersistence).catch(() => {})
-  }, [])
+  const authReady = useRef(false)
+  const graceTimerRef = useRef(null)
 
   useEffect(() => {
     let unsub
-    // Solo procesar redirect una vez (evita que Strict Mode consuma el resultado dos veces).
     if (redirectHandled.current) {
       unsub = onAuthStateChanged(auth, onAuthChange)
       return () => unsub()
     }
     redirectHandled.current = true
-    getRedirectResult(auth)
+
+    // Persistencia primero, luego redirect y listener (así en PWA la sesión se restaura bien).
+    setPersistence(auth, browserLocalPersistence)
+      .catch(() => {})
+      .then(() => getRedirectResult(auth))
       .then(() => {})
       .catch(() => {})
       .finally(() => {
         unsub = onAuthStateChanged(auth, onAuthChange)
       })
-    return () => unsub?.()
+
+    return () => {
+      if (graceTimerRef.current) clearTimeout(graceTimerRef.current)
+      unsub?.()
+    }
   }, [])
 
   function onAuthChange(firebaseUser) {
+    if (graceTimerRef.current) {
+      clearTimeout(graceTimerRef.current)
+      graceTimerRef.current = null
+    }
     setUser(firebaseUser)
     if (!firebaseUser) {
       setProfile(null)
+      if (isStandalone() && !authReady.current) {
+        graceTimerRef.current = setTimeout(() => {
+          graceTimerRef.current = null
+          authReady.current = true
+          setLoading(false)
+        }, 1500)
+        return
+      }
       setLoading(false)
       return
     }
+    authReady.current = true
     getDoc(doc(db, 'users', firebaseUser.uid))
       .then((snap) => setProfile(snap.exists() ? snap.data() : null))
       .catch(() => setProfile(null))
