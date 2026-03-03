@@ -4,6 +4,8 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   GoogleAuthProvider,
   signOut as firebaseSignOut,
 } from 'firebase/auth'
@@ -18,6 +20,13 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [profile, setProfile] = useState(null) // { role, email, ... }
   const [loading, setLoading] = useState(true)
+
+  // Completar login cuando el usuario vuelve de Google (redirect, p. ej. en iPhone)
+  useEffect(() => {
+    getRedirectResult(auth)
+      .then(() => {})
+      .catch(() => {})
+  }, [])
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (firebaseUser) => {
@@ -52,8 +61,12 @@ export function AuthProvider({ children }) {
   const login = (email, password) =>
     signInWithEmailAndPassword(auth, email, password)
 
+  // En iPhone/Safari el popup falla; usar redirect
+  const isMobile = typeof navigator !== 'undefined' && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
   const loginWithGoogle = () =>
-    signInWithPopup(auth, new GoogleAuthProvider())
+    isMobile
+      ? signInWithRedirect(auth, new GoogleAuthProvider())
+      : signInWithPopup(auth, new GoogleAuthProvider())
 
   const register = (email, password, role) =>
     createUserWithEmailAndPassword(auth, email, password)
