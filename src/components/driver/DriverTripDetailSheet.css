@@ -16,7 +16,9 @@
 .driver-trip-detail-content {
   position: relative;
   width: 100%;
-  max-height: 90vh;
+  /* Dejar hueco abajo en iOS para barra del navegador y nav de la app */
+  max-height: min(85vh, calc(100vh - 140px));
+  margin-bottom: env(safe-area-inset-bottom, 0);
   background: #fff;
   border-radius: 16px 16px 0 0;
   display: flex;
@@ -114,10 +116,10 @@
   gap: 0.75rem;
   padding: 1rem 1.25rem;
   padding-top: 1.25rem;
-  padding-bottom: max(1.25rem, env(safe-area-inset-bottom, 20px));
+  /* En iOS: espacio extra para que Aceptar/Rechazar queden arriba de la barra del navegador y la nav de la app */
+  padding-bottom: max(1.25rem, calc(env(safe-area-inset-bottom, 0px) + 100px));
   flex-shrink: 0;
   background: #fff;
-  /* En móviles el botón Aceptar debe verse y poder tocarse sin quedar cortado */
   min-height: 56px;
   align-items: center;
 }
