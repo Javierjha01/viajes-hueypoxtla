@@ -13,10 +13,8 @@ function PrivateRoute({ children }) {
   if (loading) return <div className="app-loading">Cargando…</div>
   if (!user) return <Navigate to="/login" replace />
 
-  const isGoogleUser = user?.providerData?.some((p) => p.providerId === 'google.com')
-
-  // Solo los usuarios de Google sin perfil se envían a Completar perfil.
-  if (!profile && isGoogleUser) return <Navigate to="/completar-perfil" replace />
+  // Sin perfil (Google o correo) hay que completar datos antes de entrar al home.
+  if (!profile) return <Navigate to="/completar-perfil" replace />
 
   return children
 }
