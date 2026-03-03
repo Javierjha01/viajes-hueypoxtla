@@ -25,6 +25,13 @@
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
 }
 
+.driver-trip-detail-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 .driver-trip-detail-header {
   display: flex;
   align-items: center;
@@ -106,13 +113,19 @@
   display: flex;
   gap: 0.75rem;
   padding: 1rem 1.25rem;
-  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  padding-top: 1.25rem;
+  padding-bottom: max(1.25rem, env(safe-area-inset-bottom, 20px));
   flex-shrink: 0;
+  background: #fff;
+  /* En móviles el botón Aceptar debe verse y poder tocarse sin quedar cortado */
+  min-height: 56px;
+  align-items: center;
 }
 
 .driver-trip-detail-btn {
   flex: 1;
   padding: 0.75rem 1rem;
+  min-height: 48px;
   font-size: 0.95rem;
   font-weight: 500;
   border-radius: 10px;

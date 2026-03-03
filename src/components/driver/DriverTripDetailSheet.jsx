@@ -49,20 +49,22 @@ export default function DriverTripDetailSheet({ trip, driverId, onAccept, onReje
             ×
           </button>
         </header>
-        <div className="driver-trip-detail-route">
-          <p className="driver-trip-detail-origin">{trip.originName || 'Origen'}</p>
-          <p className="driver-trip-detail-dest">{trip.destinationName || 'Destino'}</p>
-        </div>
-        <div className="driver-trip-detail-map-wrap">
-          {origin && destination && (
-            <MapWithRoute origin={origin} destination={destination} routeCoordinates={routeCoordinates} />
+        <div className="driver-trip-detail-scroll">
+          <div className="driver-trip-detail-route">
+            <p className="driver-trip-detail-origin">{trip.originName || 'Origen'}</p>
+            <p className="driver-trip-detail-dest">{trip.destinationName || 'Destino'}</p>
+          </div>
+          <div className="driver-trip-detail-map-wrap">
+            {origin && destination && (
+              <MapWithRoute origin={origin} destination={destination} routeCoordinates={routeCoordinates} />
+            )}
+          </div>
+          {error && (
+            <div className="driver-trip-detail-error-wrap" role="alert">
+              <p className="driver-trip-detail-error">{error}</p>
+            </div>
           )}
         </div>
-        {error && (
-          <div className="driver-trip-detail-error-wrap" role="alert">
-            <p className="driver-trip-detail-error">{error}</p>
-          </div>
-        )}
         <div className="driver-trip-detail-actions">
           <button type="button" className="driver-trip-detail-btn driver-trip-detail-btn-reject" onClick={onReject} disabled={loading}>
             Rechazar
