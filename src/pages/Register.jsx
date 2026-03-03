@@ -16,7 +16,7 @@ export default function Register() {
   const [role, setRole] = useState('client')
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
-  const { register: firebaseRegister } = useAuth()
+  const { register: firebaseRegister, refreshProfile } = useAuth()
   const navigate = useNavigate()
 
   function goToDriverForm() {
@@ -71,6 +71,7 @@ export default function Register() {
         apellidos: apellidos.trim(),
         telefono: phoneCheck.normalized,
       })
+      await refreshProfile(user.uid)
       navigate('/', { replace: true })
     } catch (err) {
       const msg =
